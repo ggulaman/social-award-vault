@@ -34,7 +34,7 @@ describe('SocialVault Integration Test', function() {
         )
         await socialAwardVault.deployed()
 
-        const linkTokenContract = new ethers.Contract(VRFCoordinator, LinkTokenABI, socialAwardVaultFactory)
+        const linkTokenContract = new ethers.Contract(linkTokenAddress, LinkTokenABI, socialAwardVaultFactory)
         var transferTransaction = await linkTokenContract.transfer(socialAwardVault.address, (1 * 10 ** 18).toString())
         await transferTransaction.wait()
         console.log('hash: '+ transferTransaction.hash)
