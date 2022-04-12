@@ -4,20 +4,19 @@ const LinkTokenABI = [{"constant":true,"inputs":[],"name":"name","outputs":[{"na
 
 const chai = require('chai');
 const BN = require('bn.js');
-//const { ethers } = require('ethers');
 
 // Enable and inject BN dependency
 chai.use(require('chai-bn')(BN));
 
 const socialAwardVault0Name = 'vaultTest0'
-const socialAwardVault0TargetAmount = new ethers.BigNumber.from('30000000000000000')
-const socialAwardVault0MaxStakingAmount = new ethers.BigNumber.from('20000000000000000')
-const socialAwardVault0MinStakingAmount = new ethers.BigNumber.from('10000000000000000')
+const socialAwardVault0TargetAmount = new ethers.BigNumber.from('3000000000000000')
+const socialAwardVault0MaxStakingAmount = new ethers.BigNumber.from('2000000000000000')
+const socialAwardVault0MinStakingAmount = new ethers.BigNumber.from('1000000000000000')
 
 const socialAwardVault1Name = 'vaultTest1'
-const socialAwardVault1TargetAmount = new ethers.BigNumber.from('40000000000000000')
-const socialAwardVault1MaxStakingAmount = new ethers.BigNumber.from('20000000000000000')
-const socialAwardVault1MinStakingAmount = new ethers.BigNumber.from('10000000000000000')
+const socialAwardVault1TargetAmount = new ethers.BigNumber.from('4000000000000000')
+const socialAwardVault1MaxStakingAmount = new ethers.BigNumber.from('2000000000000000')
+const socialAwardVault1MinStakingAmount = new ethers.BigNumber.from('1000000000000000')
 
 const linkTokenAddress = '0xa36085F69e2889c224210F603D836748e7dC0088'
 const VRFCoordinator = '0xdD3782915140c8f3b190B5D67eAc6dc5760C46E9'
@@ -39,6 +38,7 @@ describe('SocialAwardVaultFactory Unit Test', function() {
         await socialAwardVaultFactory.deployed()
 
         const linkTokenContract = new ethers.Contract(linkTokenAddress, LinkTokenABI, socialAwardVaultFactoryCreator)
+        console.log('social vault fac addresss is', socialAwardVaultFactory.address)
         var transferTransaction = await linkTokenContract.transfer(socialAwardVaultFactory.address, (3 * 10 ** 18).toString())
         await transferTransaction.wait()
         console.log('hash: '+ transferTransaction.hash)
@@ -46,34 +46,14 @@ describe('SocialAwardVaultFactory Unit Test', function() {
 
         socialAwardVaultStakingFee = 50
         await socialAwardVaultFactory.connect(socialAwardVaultFactoryCreator).setAwardVaultProtolStakingFee(socialAwardVaultStakingFee)
-        await socialAwardVaultFactory.connect(socialAwardVaultFactoryCreator).createSocialAwardVault(socialAwardVault0TargetAmount, socialAwardVault0Name, socialAwardVault0MaxStakingAmount, socialAwardVault0MinStakingAmount)
+        //await socialAwardVaultFactory.connect(socialAwardVaultFactoryCreator).createSocialAwardVault(socialAwardVault0TargetAmount, socialAwardVault0Name, socialAwardVault0MaxStakingAmount, socialAwardVault0MinStakingAmount)
     })   
     
-    it('Creates a Social Vault', async function() {
-        await socialAwardVaultFactory.connect(socialAwardVaultCreator).createSocialAwardVault(socialAwardVault1TargetAmount, socialAwardVault1Name, socialAwardVault1MaxStakingAmount, socialAwardVault1MinStakingAmount)
-        const numVaults = await socialAwardVaultFactory.connect(socialAwardVaultFactoryCreator).getNumberOfSocialAwardVaults()
-        expect((new ethers.BigNumber.from(numVaults._hex).toString())).to.equal('2')
-    })
-    
-    it('Returns the values of the Latest Social Vault', async function() {       
-        const numVaults = await socialAwardVaultFactory.connect(socialAwardVaultFactoryCreator).getNumberOfSocialAwardVaults()
-        const [sVCreatorAddress, sVName, sVTargetAmount, sVStakedAmount] = await socialAwardVaultFactory.getSocialAwardVaultDetailsById(1)
-        expect(numVaults).to.be.equal(2)
-        expect(sVCreatorAddress).to.be.equal(socialAwardVaultCreator.address)
-        expect(sVName).to.be.equal(socialAwardVault1Name)
-        expect(sVTargetAmount).to.equal(socialAwardVault1TargetAmount)
-        expect(sVStakedAmount).to.be.equal(0)
-    })
-    
-    it('Sets and returns Vault Staking Fee', async function() {
-        const newVaultStakingFee = 50
-        await socialAwardVaultFactory.connect(socialAwardVaultFactoryCreator).setAwardVaultProtolStakingFee(newVaultStakingFee)
-        returnedStakingFee = await socialAwardVaultFactory.connect(socialAwardVaultFactoryCreator).socialAwardVaultProtolStakingFee()
-        expect(returnedStakingFee).to.be.equal(newVaultStakingFee)
-    })
+
 
     it('Tests only SAVF owner can update the SAV Staking Fee', async function() {
         const newVaultStakingFee = 50
+        returnedStakingFee = socialAwardVaultFactory.connect(socialAwardVaultCreator).setAwardVaultProtolStakingFee(newVaultStakingFee)
         await expect(socialAwardVaultFactory.connect(socialAwardVaultCreator).setAwardVaultProtolStakingFee(newVaultStakingFee)).to.be.revertedWith("Fee only updateable by SVF owner")
     })
 
@@ -81,11 +61,11 @@ describe('SocialAwardVaultFactory Unit Test', function() {
         const newVaultStakingFee = 100
         await expect(socialAwardVaultFactory.connect(socialAwardVaultFactoryCreator).setAwardVaultProtolStakingFee(newVaultStakingFee)).to.be.revertedWith("Fee Can't be > 99")
     })
-    
+    /*
     it('Stakes and Pays the fee to the SV Factory SC', async function() {
         const socialVaultFactoryInitalBalance = await socialAwardVaultFactory.getSmartContractBalance(); // Getting Balance of SocialVaultFactory Address
         const retrievedVaultStakingFee = await socialAwardVaultFactory.socialAwardVaultProtolStakingFee();
-        const amountSendByUser = (2 * 10 ** 18).toString()
+        const amountSendByUser = (2 * 10 ** 15).toString()
         const expectedAmountStakedByUser = amountSendByUser * (100 - retrievedVaultStakingFee) / 100
 
         retriviedSocialAwardVault0 = await socialAwardVaultFactory.socialAwardVaults(0)
@@ -105,7 +85,7 @@ describe('SocialAwardVaultFactory Unit Test', function() {
     })
     
     it('Returns the SV where user has staked', async function() {
-        const amountSendByUser = (2 * 10 ** 18).toString()
+        const amountSendByUser = (2 * 10 ** 15).toString()
         
         await socialAwardVaultFactory.connect(socialAwardVaultCreator).createSocialAwardVault(socialAwardVault1TargetAmount, socialAwardVault1Name, socialAwardVault1MaxStakingAmount, socialAwardVault1MinStakingAmount)
         socialVault2Address = await socialAwardVaultFactory.socialAwardVaults(2)
@@ -124,5 +104,6 @@ describe('SocialAwardVaultFactory Unit Test', function() {
         expect(userVaultsMod[0]).to.equal('2')
         expect(userVaultsMod[1]).to.equal('0')
     })
+    */
     
 })
