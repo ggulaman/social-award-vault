@@ -4,9 +4,9 @@ A link running the dApp: https://awardvault.netlify.app/
 
 ## Project Description
 
-SocialAwardVault is a protocol operating on smart blockchain running EVM (Etherum Virtual Machine).
-Users can create vaults with a target amount. Then, other users can stake on that vaults.
-Once the target amount is reached, a ruffle happens, and the target amount is sent to the lucky winner.
+SocialAwardVault is a protocol operating on a smart blockchain running EVM (Ethereum Virtual Machine).
+
+Users can create vaults with a target amount. Then, other users can stake in that vaults. Once the target amount is reached, a ruffle happens, and the target amount is sent to the lucky winner.
 
 ## How to Run this DApp
 
